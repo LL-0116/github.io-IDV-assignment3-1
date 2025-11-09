@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML Drawing with Feedback</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1e40af',
+                        secondary: '#dbeafe',
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .drawing-container {
+                @apply flex flex-col items-center justify-center min-h-screen bg-secondary p-4;
+            }
+            .canvas-container {
+                @apply bg-white p-4 rounded-lg shadow-lg;
+            }
+            canvas {
+                @apply border border-gray-200 rounded;
+                opacity: 0;
+                animation: fadeIn 1.5s ease-in-out forwards;
+            }
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(20px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            .highlight {
+                filter: drop-shadow(0 0 4px rgba(30, 64, 175, 0.8));
+                transition: filter 0.3s ease;
+            }
+            .tooltip {
+                position: absolute;
+                background-color: rgba(30, 64, 175, 0.9);
+                color: white;
+                padding: 5px 10px;
+                border-radius: 4px;
+                font-size: 12px;
+                pointer-events: none;
+                opacity: 0;
+                transition: opacity 0.3s ease;
+                z-index: 10;
+            }
+            .doc-feedback-area {
+                @apply bg-white p-6 rounded-lg shadow-lg mt-8 max-w-4xl w-full;
+            }
+            .doc-feedback-title {
+                @apply text-xl font-bold text-primary mb-4 border-b-2 border-secondary pb-2;
+            }
+            .doc-feedback-item {
+                @apply mb-3 flex items-start;
+            }
+            .doc-feedback-num {
+                @apply font-bold text-primary mr-3 mt-0.5;
+            }
+            .doc-feedback-content {
+                @apply flex-1 text-gray-700 leading-relaxed;
+            }
+            .images-container {
+                @apply mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6;
+            }
+            .image-item {
+                @apply flex flex-col items-center bg-gray-50 p-4 rounded-lg shadow;
+            }
+            .image-number {
+                @apply font-bold text-primary text-lg mb-2;
+            }
+            .image-wrapper {
+                @apply relative w-full overflow-hidden rounded;
+            }
+            .image-wrapper img {
+                @apply w-full h-auto transition-transform duration-300 hover:scale-105;
+            }
+        }
+    </style>
+</head>
+<body class="drawing-container">
+    <!-- Drawing Area -->
+    <div class="canvas-container relative">
+        <canvas id="drawingCanvas" width="500" height="500"></canvas>
+        <div id="tooltip" class="tooltip"></div>
+    </div>
+
+    <!-- Document Content Area -->
+    <div class="doc-feedback-area">
+        <h2 class="doc-feedback-title">Content of Character Image Feedback.docx</h2>
+        <div class="doc-feedback-item">
+            <span class="doc-feedback-num">1.</span>
+            <div class="doc-feedback-content">I provided the original image to the AI and asked it to draw the picture using HTML code.</div>
+        </div>
+        <div class="doc-feedback-item">
+            <span class="doc-feedback-num">2.</span>
+            <div class="doc-feedback-content">There were some differences between the image drawn in the previous step and the original. So I asked the AI to adjust the details — the character should be holding a pen in one hand and paper in the other. The pen should be drawn more completely, with a full pencil shape just like the one in the image I sent you. I also sent a screenshot of the pencil shape from the original image.</div>
+        </div>
+        <div class="doc-feedback-item">
+            <span class="doc-feedback-num">3.</span>
+            <div class="doc-feedback-content">Add two circles on the feet, just like in the sample image.</div>
+        </div>
+        <div class="doc-feedback-item">
+            <span class="doc-feedback-num">4.</span>
+            <div class="doc-feedback-content">Move the intersection point of the legs and the body to the center of the top of the cube. But this instruction may not have been clear enough, and the AI didn’t make the modification I wanted.</div>
+        </div>
+        <div class="doc-feedback-item">
+            <span class="doc-feedback-num">5.</span>
+            <div class="doc-feedback-content">Please move the legs to the same position as in the initial sample image I provided. This instruction made the AI make a pretty good modification.</div>
+        </div>
+        <div class="doc-feedback-item">
+            <span class="doc-feedback-num">6.</span>
+            <div class="doc-feedback-content">During the previous position adjustment, the hands became separated from the body. So I sent a request to move the top of the hands to the left to connect them with the body. And both legs should look like the example picture.</div>
+        </div>
+        <div class="doc-feedback-item">
+            <span class="doc-feedback-num">7.</span>
+            <div class="doc-feedback-content">I continued to make some detailed adjustments: add a smaller square (slightly smaller than the head) around the facial expression.</div>
+        </div>
+        <div class="doc-feedback-item">
+            <span class="doc-feedback-num">8.</span>
+            <div class="doc-feedback-content">The expression went beyond the face, so I asked the AI to make further detailed changes — make that square a bit larger and shift the facial expression to the left.</div>
+        </div>
+        <div class="doc-feedback-item">
+            <span class="doc-feedback-num">9.</span>
+            <div class="doc-feedback-content">Finally, according to the assignment requirements, I asked the AI to add the required effects to the picture — move both circles on the feet to the left, and add a transition effect and an interaction effect.</div>
+        </div>
+
+        <!-- Added Images with Numbers -->
+        <div class="images-container">
+            <div class="image-item">
+                <span class="image-number">1</span>
+                <div class="image-wrapper">
+                    <img src="reference-1.png" alt="Reference Image 1">
+                </div>
+            </div>
+            <div class="image-item">
+                <span class="image-number">2</span>
+                <div class="image-wrapper">
+                    <img src="reference-2.png" alt="Reference Image 2">
+                </div>
+            </div>
+            <div class="image-item">
+                <span class="image-number">3</span>
+                <div class="image-wrapper">
+                    <img src="reference-3.png" alt="Reference Image 3">
+                </div>
+            </div>
+            <div class="image-item">
+                <span class="image-number">4</span>
+                <div class="image-wrapper">
+                    <img src="reference-4.png" alt="Reference Image 4">
+                </div>
+            </div>
+            <div class="image-item">
+                <span class="image-number">5</span>
+                <div class="image-wrapper">
+                    <img src="reference-5.png" alt="Reference Image 5">
+                </div>
+            </div>
+            <div class="image-item">
+                <span class="image-number">6</span>
+                <div class="image-wrapper">
+                    <img src="reference-6.png" alt="Reference Image 6">
+                </div>
+            </div>
+            <div class="image-item">
+                <span class="image-number">7</span>
+                <div class="image-wrapper">
+                    <img src="reference-7.png" alt="Reference Image 7">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Drawing Interaction Script -->
+    <script>
+        // Get the canvas element and context
+        const canvas = document.getElementById('drawingCanvas');
+        const ctx = canvas.getContext('2d');
+        const tooltip = document.getElementById('tooltip');
+        
+        // Define interactive regions
+        const interactiveRegions = [
+            {
+                name: 'Head',
+                x: 200,
+                y: 110,
+                width: 100,
+                height: 90,
+                tooltip: 'Cube-shaped head'
+            },
+            {
+                name: 'Face',
+                x: 210,
+                y: 120,
+                width: 80,
+                height: 70,
+                tooltip: 'Simple facial expression'
+            },
+            {
+                name: 'Body',
+                x: 250,
+                y: 200,
+                width: 20,
+                height: 80,
+                tooltip: 'Body'
+            },
+            {
+                name: 'LeftArm',
+                x: 225,
+                y: 230,
+                width: 30,
+                height: 40,
+                tooltip: 'Left arm holding paper'
+            },
+            {
+                name: 'RightArm',
+                x: 265,
+                y: 230,
+                width: 40,
+                height: 30,
+                tooltip: 'Right arm holding pen'
+            },
+            {
+                name: 'Paper',
+                x: 190,
+                y: 225,
+                width: 50,
+                height: 45,
+                tooltip: 'Paper with writing'
+            },
+            {
+                name: 'Pen',
+                x: 305,
+                y: 240,
+                width: 60,
+                height: 10,
+                tooltip: 'Pen'
+            },
+            {
+                name: 'LeftLeg',
+                x: 230,
+                y: 280,
+                width: 40,
+                height: 100,
+                tooltip: 'Left leg'
+            },
+            {
+                name: 'RightLeg',
+                x: 270,
+                y: 280,
+                width: 40,
+                height: 100,
+                tooltip: 'Right leg'
+            },
+            {
+                name: 'LeftFoot',
+                x: 210,
+                y: 375,
+                width: 40,
+                height: 20,
+                tooltip: 'Left foot'
+            },
+            {
+                name: 'RightFoot',
+                x: 290,
+                y: 375,
+                width: 40,
+                height: 20,
+                tooltip: 'Right foot'
+            },
+            {
+                name: 'Seat',
+                x: 100,
+                y: 300,
+                width: 300,
+                height: 100,
+                tooltip: 'Cube seat'
+            }
+        ];
+        
+        // Function to check if mouse is in a region
+        function isMouseInRegion(mouseX, mouseY, region) {
+            return mouseX >= region.x &&
+                   mouseX <= region.x + region.width &&
+                   mouseY >= region.y &&
+                   mouseY <= region.y + region.height;
+        }
+        
+        // Mouse move event handler
+        canvas.addEventListener('mousemove', function(e) {
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+            
+            let hoveredRegion = null;
+            
+            // Check each region
+            for (const region of interactiveRegions) {
+                if (isMouseInRegion(mouseX, mouseY, region)) {
+                    hoveredRegion = region;
+                    break;
+                }
+            }
+            
+            // Update tooltip
+            if (hoveredRegion) {
+                tooltip.textContent = hoveredRegion.tooltip;
+                tooltip.style.left = (e.clientX + 10) + 'px';
+                tooltip.style.top = (e.clientY + 10) + 'px';
+                tooltip.style.opacity = '1';
+                canvas.classList.add('highlight');
+            } else {
+                tooltip.style.opacity = '0';
+                canvas.classList.remove('highlight');
+            }
+        });
+        
+        // Mouse leave event handler
+        canvas.addEventListener('mouseleave', function() {
+            tooltip.style.opacity = '0';
+            canvas.classList.remove('highlight');
+        });
+
+        // Set up the drawing style
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = '#1e40af';
+        ctx.fillStyle = 'transparent';
+
+        // Function to draw a cube
+        function drawCube(x, y, width, height, depth) {
+            // Main face (front)
+            ctx.beginPath();
+            ctx.rect(x, y, width, height);
+            ctx.stroke();
+
+            // Top face
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.lineTo(x + depth, y - depth);
+            ctx.lineTo(x + width + depth, y - depth);
+            ctx.lineTo(x + width, y);
+            ctx.closePath();
+            ctx.stroke();
+
+            // Side face
+            ctx.beginPath();
+            ctx.moveTo(x + width, y);
+            ctx.lineTo(x + width + depth, y - depth);
+            ctx.lineTo(x + width + depth, y + height - depth);
+            ctx.lineTo(x + width, y + height);
+            ctx.closePath();
+            ctx.stroke();
+        }
+
+        // Function to draw an ellipse
+        function drawEllipse(x, y, width, height) {
+            ctx.beginPath();
+            ctx.ellipse(x, y, width, height, 0, 0, Math.PI * 2);
+            ctx.stroke();
+        }
+        
+        // Function to draw a curved hand shape
+        function drawCurvedHand(x, y, angle) {
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate(angle);
+            
+            // Larger curved hand shape using bezier curves - starts at (0,0) which connects to arm
+            ctx.beginPath();
+            ctx.moveTo(0, 0); // This point connects to the arm
+            ctx.bezierCurveTo(-8, -4, -12, 6, 0, 10);
+            ctx.bezierCurveTo(12, 6, 8, -4, 0, 0);
+            ctx.closePath();
+            ctx.stroke();
+            
+            ctx.restore();
+        }
+
+        // Function to draw a line
+        function drawLine(x1, y1, x2, y2) {
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
+        }
+
+        // Draw the base cube (the one the character is sitting on)
+        drawCube(100, 300, 300, 100, 50);
+
+        // Draw the character's body (simple lines) - matching original reference image
+        drawLine(250, 200, 270, 280); // Body (short and tilted to the right)
+        drawLine(255, 215, 225, 270); // Left arm (holding paper, connected to body - moved left a bit more)
+        drawLine(255, 215, 305, 260); // Right arm (holding pencil, connected to body - moved left a bit more)
+
+        // Draw the character's head (cube) - positioned to connect better with body
+        drawCube(200, 110, 100, 90, 30); // Head is slightly smaller and positioned lower
+
+        // Add a simple neck to connect head and body
+        drawLine(250, 200, 260, 210); // Neck (short and slightly tilted)
+
+        // Add a larger square around the face
+        ctx.beginPath();
+        ctx.rect(210, 120, 80, 70); // Larger square around the face (increased size)
+        ctx.stroke();
+        
+        // Draw the character's face - moved left
+        drawLine(225, 140, 245, 140); // Left eye (moved left)
+        drawLine(265, 140, 285, 140); // Right eye (moved left)
+        drawLine(225, 170, 285, 170); // Mouth (moved left)
+
+        // Draw the paper in the character's left hand - matching original reference image
+        ctx.beginPath();
+        ctx.moveTo(225, 270);
+        ctx.lineTo(200, 255);
+        ctx.lineTo(210, 225);
+        ctx.lineTo(240, 245);
+        ctx.closePath();
+        ctx.stroke();
+
+        // Add writing details to the paper - matching original reference image
+        drawLine(205, 235, 230, 250);
+        drawLine(210, 245, 235, 260);
+        
+        // Draw a pen shape matching the reference image
+        function drawPen(x, y, angle, length) {
+            // Save the current context state
+            ctx.save();
+            
+            // Translate and rotate the context to draw the pen at the desired angle
+            ctx.translate(x, y);
+            ctx.rotate(angle);
+            
+            // Pen body (two parallel lines)
+            const bodyWidth = 4;
+            ctx.beginPath();
+            ctx.moveTo(0, -bodyWidth/2);
+            ctx.lineTo(length - 20, -bodyWidth/2);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo(0, bodyWidth/2);
+            ctx.lineTo(length - 20, bodyWidth/2);
+            ctx.stroke();
+            
+            // Pen tip (long and pointed)
+            ctx.beginPath();
+            ctx.moveTo(length - 20, -bodyWidth/2);
+            ctx.lineTo(length, 0);
+            ctx.lineTo(length - 20, bodyWidth/2);
+            ctx.stroke();
+            
+            // Restore the context state
+            ctx.restore();
+        }
+        
+        // Draw the pen in the character's right hand - matching original reference image
+        // Calculate the angle for the pen (pointing to the paper)
+        const penAngle = Math.atan2(230 - 260, 200 - 305);
+        drawPen(305, 260, penAngle, 60);
+        
+        // Draw the character's legs with折角 moved up
+        drawLine(270, 280, 230, 310); // Left leg (from body to折角, moved up)
+        drawLine(230, 310, 230, 380); // Left leg (from折角 down)
+        drawLine(270, 280, 310, 310); // Right leg (from body to折角, moved up)
+        drawLine(310, 310, 310, 380); // Right leg (from折角 down)
+        
+        // Draw the character's hands (curved shape) - matching original reference image
+        drawCurvedHand(225, 270, Math.PI * 0.6); // Left hand (holding paper, adjusted angle for new arm position)
+        drawCurvedHand(305, 260, Math.PI * -0.4); // Right hand (holding pencil, adjusted angle for new arm position)
+        
+        // Draw the character's feet with rounded bottom (toes pointing left)
+        // Left foot (rounded bottom, toes pointing left)
+        ctx.beginPath();
+        ctx.moveTo(230, 380); // Top of foot
+        ctx.quadraticCurveTo(225, 395, 215, 385); // Rounded bottom (left side)
+        ctx.quadraticCurveTo(210, 375, 230, 380); // Back to top
+        ctx.stroke();
+        
+        // Right foot (rounded bottom, toes pointing left)
+        ctx.beginPath();
+        ctx.moveTo(310, 380); // Top of foot
+        ctx.quadraticCurveTo(305, 395, 295, 385); // Rounded bottom (left side)
+        ctx.quadraticCurveTo(290, 375, 310, 380); // Back to top
+        ctx.stroke();
+    </script>
+</body>
+</html>
